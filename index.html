@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Document</title>
+  </head>
+
+  <body>
+    <div class="center">
+      <input type="text" id="playlistid" />
+      <button id="btn">Get</button>
+
+      <div id="loading"></div>
+
+      <div id="playlist"></div>
+    </div>
+
+    <script>
+      let btn = document.getElementById("btn");
+      let playlistid = document.getElementById("playlistid");
+      let loading = document.getElementById("loading");
+      let playlist = document.getElementById("playlist");
+      let apiKey = "";
+      let playListId = ""; //"PLi2wSzq33YMDWF7qhvofFo-S19z5fsCG7";
+
+      btn.addEventListener("click", async function () {
+        if (playlistid.value !== "") {
+          playlist.innerHTML = "";
+          loading.innerText = "Loading...";
+          playListId = playlistid.value;
+          let url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playListId}&key=${apiKey}&maxResults=50`;
+          let response = await fetch(url);
+          let data = await response.json();
+
+          console.log(data);
+          data.items.forEach((item) => {
+            let videoId = item.snippet.resourceId.videoId;
+            let title = item.snippet.title;
+            let thumbnail = item.snippet.thumbnails.medium.url;
+            let url = `https://www.youtube.com/watch?v=${videoId}`;
+            let publishedAt = item.snippet.publishedAt;
+            let iframe = `
+            <iframe  src="https://www.youtube.com/embed/${videoId}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            `;
+            let html = `
+              <div class="video">
+                ${iframe}
+                publishedAt: ${publishedAt}
+                  Thumbnail
+                  <img src="${thumbnail}" alt="${title}" />
+                  <a href="${url}">
+                  <p>${title}</p>
+                </a>
+              </div>
+            `;
+
+            loading.innerText = "";
+            playlist.innerHTML += html;
+          });
+        }
+      });
+    </script>
+  </body>
+</html>
